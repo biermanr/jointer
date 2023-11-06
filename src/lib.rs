@@ -69,10 +69,12 @@ impl CountFile {
 /// Merge counts files
 #[pyfunction]
 fn rs_merge(count_paths: Vec<&str>, out_path: &str) {
-    let mut cfs: Vec<CountFile> = Vec::new();
-    for p in count_paths {
-        cfs.push(CountFile::new(&p));
-    }
+    let mut cfs: Vec<CountFile> = count_paths
+        .iter()
+        .map(|x| CountFile::new(x))
+        .collect();
+
+
 }
 
 #[pymodule]
