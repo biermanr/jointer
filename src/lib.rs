@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
-//use std::collections::BinaryHeap;
-//use std::cmp::Ordering;
+use std::collections::BinaryHeap;
+use std::cmp::Ordering;
 use std::fs;
 use std::io;
 use std::io::BufRead;
@@ -65,15 +65,38 @@ impl CountFile {
      
 }
 
+impl Ord for CountFile {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.chrom.cmp(&other.chrom)
+            .then_with(|| self.pos.cmp(&other.pos))
+    }
+}
+
+impl PartialOrd for CountFile {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for CountFile {
+    fn eq(&self, other: &Self) -> bool {
+        self.chrom.eq(&other.chrom) && self.pos.eq(&other.pos)
+    }
+}
+
+impl Eq for CountFile {}
+
+
 
 /// Merge counts files
 #[pyfunction]
 fn rs_merge(count_paths: Vec<&str>, out_path: &str) {
-    let mut cfs: Vec<CountFile> = count_paths
+    let mut cfs: BinaryHeap<CountFile> = count_paths
         .iter()
         .map(|x| CountFile::new(x))
         .collect();
 
+    
 
 }
 
