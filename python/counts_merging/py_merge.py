@@ -1,12 +1,19 @@
+"""Merge count files."""
 import heapq
 from typing import List
 
-BASES = {'A','C','G','T'}
+BASES = {"A", "C", "G", "T"}
+
 
 class CountFile:
     """Class to manage a count file."""
 
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
+        """Create new CountFile.
+
+        Args:
+            path: path of countfile to open
+        """
         self.path = path
         self.f = open(path, "r")
         self.f.readline()  # skip the header
@@ -30,11 +37,13 @@ class CountFile:
 
         self.advance()
 
-    def advance(self):
-        """
-        Advance to the next position
+    def advance(self) -> bool:
+        """Advance to the next position.
+
         Updates the CountFile object and returns True if succeeded
-        Returns False if the file is exhausted
+
+        Returns:
+            False if the file is exhausted
         """
         if self.exhausted:
             return False
@@ -66,7 +75,12 @@ class CountFile:
 
         return True
 
-    def pos_fields(self):
+    def pos_fields(self) -> List[str]:
+        """Returns values of position fields.
+
+        Returns:
+            List of string values for the locus
+        """
         return [
             self.chrom,
             self.pos,
@@ -76,7 +90,12 @@ class CountFile:
             self.aft,
         ]
 
-    def count_fields(self):
+    def count_fields(self) -> List[int]:
+        """Returns values of count fields.
+
+        Returns:
+            List of int values for the locus
+        """
         return [
             self.ref_count,
             self.alt_count,
@@ -88,10 +107,26 @@ class CountFile:
             self.alt_rev,
         ]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        """Equality operator for CountFile objects.
+
+        Args:
+            other: CountFile obj to compare
+
+        Returns:
+            a bool of whether self == other
+        """
         return self.chrom == other.chrom and self.pos == other.pos
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
+        """Less-than operator for CountFile objects.
+
+        Args:
+            other: CountFile obj to compare
+
+        Returns:
+            a bool of whether self is less than other
+        """
         self_int_chrom = int(self.chrom.replace("chr", ""))
         other_int_chrom = int(other.chrom.replace("chr", ""))
         self_int_pos = int(self.pos)
@@ -106,7 +141,12 @@ class CountFile:
         # chroms must be the same here, so just compare positions
         return self_int_pos < other_int_pos
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Str representation of CountFile.
+
+        Returns:
+            string representation of CountFile
+        """
         return (
             f"{self.chrom}:{self.pos} "
             f"{self.bef}[{self.ref}>{self.alt}]{self.aft} "
@@ -115,32 +155,44 @@ class CountFile:
         )
 
     @staticmethod
-    def to_numeric(s):
+    def to_numeric(s: str) -> int:
+        """Convert str to number.
+
+        Args:
+            s: number to convert
+
+        Returns:
+            numeric representation
+        """
         if s == ".":
             return 0
         else:
             return int(s)
 
     @staticmethod
-    def from_numeric(n):
+    def from_numeric(n: int) -> str:
+        """Convert number to str.
+
+        Args:
+            n: number to convert
+
+        Returns:
+            string representation
+        """
         if n == 0:
             return "."
         else:
             return str(n)
 
 
-def merge(count_paths: List[str], out_path: str):
-    """
-    Merge count files into a single count file
+def merge(count_paths: List[str], out_path: str) -> None:
+    """Merge count files into a single count file.
 
-    :param count_paths: paths of count files to merge
-    :type count_paths: list[str]
-
-    :param out_path: path to output file
-    :type out_path: str
+    Args:
+        count_paths: paths of count files to merge
+        out_path: path to output file
     """
     with open(out_path, "w") as out_f:
-
         header_fields = [
             "CHR",
             "POS",
@@ -168,7 +220,6 @@ def merge(count_paths: List[str], out_path: str):
 
         # as long as there are positions in heap, keep going
         while count_heap:
-
             # create list of all count_files that are at the current position
             matched_count_files = [heapq.heappop(count_heap)]
             while count_heap and count_heap[0] == matched_count_files[0]:
@@ -178,7 +229,7 @@ def merge(count_paths: List[str], out_path: str):
             alt_bases = {c.alt for c in matched_count_files}
 
             # intersection with BASES={'A','C','G','T'} must be 0 or 1
-            # will be zero if alt_bases={'.'} and one if alt_bases={'.','A'} for example
+            # will be zero if alt_bases={'.'} and one if alt_bases={'.','A'}
             if len(alt_bases & BASES) < 2:
                 # if the alt bases are {'.','A'}, we want the alt to be 'A'
                 # if the alt bases are just {'.'} then we'll have it be '.'
@@ -206,4 +257,3 @@ def merge(count_paths: List[str], out_path: str):
             for c in matched_count_files:
                 if c.advance():
                     heapq.heappush(count_heap, c)
-
