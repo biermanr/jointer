@@ -27,7 +27,7 @@ repos:
   rev: v2.1.0
   hooks:
   - id: codespell
-    args: [--ignore-words-list, "absense,inout"]
+    args: [--ignore-words-list, "absense,inout,crate"]
 
 - repo: https://github.com/pycqa/isort
   rev: 5.11.5

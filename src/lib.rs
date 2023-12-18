@@ -15,33 +15,31 @@ fn rs_merge(count_paths: Vec<&str>, _out_path: &str) {
 
     while cfs.len() > 0 {
         //the first CountFile position will be the min
-        let min_cf = cfs.pop().unwrap();
-        let mut curr_cfs: Vec<CountFile> = Vec::new();
+        //NOTE this is a bug! the "top" cf needs to be added
+        //back to the heap!
+        let mut locus_data = cfs.pop().unwrap().data;
 
+        //Aggregate the counts at the current position
         //keep popping until a greater value is found
+        //then add that back onto the heap
         while cfs.len() > 0 {
             let cf = cfs.pop().unwrap();
-            if cf <= min_cf {
-                curr_cfs.push(cf);
-            } else {
-                cfs.push(cf);
-            }
-        }
-        curr_cfs.push(min_cf);
+            let data = cf.data;
 
-        //Aggregate the CountFile objects to prepare for outpu
-        //NOTE
-        
-
-        //Write the output to the out_path
-        //NOTE
-
-        //add back to the BinaryHeap if not spent
-        for mut cf in curr_cfs {
             if cf.next() {
                 cfs.push(cf);
             }
+
+            if data == locus_data {
+                locus_data += data;
+            } else {
+                break;
+            }
         }
+
+        //TODO writeout aggregated values
+
+
     }
 
 }

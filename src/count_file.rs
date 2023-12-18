@@ -1,11 +1,10 @@
 use std::cmp::Ordering;
 use std::io::BufRead;
 use std::path::Path;
-use std::fs;
-use std::io;
+use std::{fs, io, ops};
 
-#[derive(PartialEq,Debug)]
-struct CountData {
+#[derive(Eq,PartialEq,Debug)]
+pub struct CountData {
     chrom: String, //NOTE handle the chromosomes better! new struct?
     pos: u32,
     ref_base: char,
@@ -22,9 +21,66 @@ struct CountData {
     alt_rev: u16,
 }
 
+impl ops::Add<CountData> for CountData {
+    type Output = CountData;
+
+    fn add(self, other: Self) -> Self {
+        //Create a new CountData object
+        //as the addition of two CountData's
+        //they should be at the same chrom/pos
+        CountData {
+            chrom: self.chrom,
+            pos: self.pos,
+            ref_base: self.ref_base,
+            alt_base: self.alt_base, //NOTE this is wrong
+            bef_base: self.bef_base,
+            aft_base: self.aft_base,
+            ref_count: self.ref_count+other.ref_count,
+            alt_count: self.alt_count+other.alt_count,
+            ref_indel: self.ref_indel+other.ref_indel,
+            alt_indel: self.alt_indel+other.alt_indel,
+            ref_fwd: self.ref_fwd+other.ref_fwd,
+            alt_fwd: self.alt_fwd+other.alt_fwd,
+            ref_rev: self.ref_rev+other.ref_rev,
+            alt_rev: self.alt_rev+other.alt_rev,
+        }
+    }
+}
+
+
+impl ops::AddAssign for CountData {
+    fn add_assign(&mut self, other: Self) {
+        //Increment the count data for self using other
+        self.ref_count += other.ref_count;
+        self.alt_count += other.alt_count;
+        self.ref_indel += other.ref_indel;
+        self.alt_indel += other.alt_indel;
+        self.ref_fwd += other.ref_fwd;
+        self.alt_fwd += other.alt_fwd;
+        self.ref_rev += other.ref_rev;
+        self.alt_rev += other.alt_rev;
+    }
+}
+
+
+impl Ord for CountData {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.chrom.cmp(&other.chrom)
+            .then_with(|| self.pos.cmp(&other.pos))
+    }
+}
+
+impl PartialOrd for CountData {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+
+
 pub struct CountFile {
     f: io::Lines<io::BufReader<fs::File>>,
-    data: CountData,
+    pub data: CountData,
 }
 
 impl CountFile {
@@ -39,13 +95,14 @@ impl CountFile {
             "Error, could not read line");
 
         let data = Self::parse_line(&line);
-        
+
         CountFile{f:f, data:data}
     }
 
     ///Read the next line and update fields
     ///updates the CountData
     ///returns true if successful, otherwise false
+    ///NOTE refactor this to use an Optional return?
     pub fn next(&mut self) -> bool {
         if let Some(Ok(line)) = self.f.next() {
             self.data = Self::parse_line(&line);
@@ -86,13 +143,12 @@ impl CountFile {
         let file = fs::File::open(fname)?;
         Ok(io::BufReader::new(file).lines())
     }
-     
+
 }
 
 impl Ord for CountFile {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.data.chrom.cmp(&other.data.chrom)
-            .then_with(|| self.data.pos.cmp(&other.data.pos))
+        self.data.cmp(&other.data)
     }
 }
 
@@ -104,7 +160,7 @@ impl PartialOrd for CountFile {
 
 impl PartialEq for CountFile {
     fn eq(&self, other: &Self) -> bool {
-        self.data.chrom.eq(&other.data.chrom) && self.data.pos.eq(&other.data.pos)
+        self.data.eq(&other.data)
     }
 }
 
@@ -139,5 +195,117 @@ mod tests {
         assert_eq!(cf,ground_truth);
     }
 
+    #[test]
+    fn test_add_CountData() {
+        let cd1 = CountData {
+            chrom: "chr22".into(),
+            pos: 10513926,
+            ref_base: 'A',
+            alt_base: '.',
+            bef_base: 'A',
+            aft_base: 'A',
+            ref_count: 1,
+            alt_count: 0,
+            ref_indel: 3,
+            alt_indel: 5,
+            ref_fwd: 1,
+            alt_fwd: 7,
+            ref_rev: 6,
+            alt_rev: 18,
+        };
 
+        let cd2 = CountData {
+            chrom: "chr22".into(),
+            pos: 10513926,
+            ref_base: 'A',
+            alt_base: '.',
+            bef_base: 'A',
+            aft_base: 'A',
+            ref_count: 3,
+            alt_count: 9,
+            ref_indel: 14,
+            alt_indel: 6,
+            ref_fwd: 7,
+            alt_fwd: 12,
+            ref_rev: 4,
+            alt_rev: 3,
+        };
+
+        let ground_truth = CountData {
+            chrom: "chr22".into(),
+            pos: 10513926,
+            ref_base: 'A',
+            alt_base: '.',
+            bef_base: 'A',
+            aft_base: 'A',
+            ref_count: 4,
+            alt_count: 9,
+            ref_indel: 17,
+            alt_indel: 11,
+            ref_fwd: 8,
+            alt_fwd: 19,
+            ref_rev: 10,
+            alt_rev: 21,
+        };
+
+        let s = cd1+cd2;
+        assert_eq!(s,ground_truth);
+    }
+
+    #[test]
+    fn test_iter_sum_CountData() {
+        let cd1 = CountData {
+            chrom: "chr22".into(),
+            pos: 10513926,
+            ref_base: 'A',
+            alt_base: '.',
+            bef_base: 'A',
+            aft_base: 'A',
+            ref_count: 1,
+            alt_count: 0,
+            ref_indel: 3,
+            alt_indel: 5,
+            ref_fwd: 1,
+            alt_fwd: 7,
+            ref_rev: 6,
+            alt_rev: 18,
+        };
+
+        let cd2 = CountData {
+            chrom: "chr22".into(),
+            pos: 10513926,
+            ref_base: 'A',
+            alt_base: '.',
+            bef_base: 'A',
+            aft_base: 'A',
+            ref_count: 3,
+            alt_count: 9,
+            ref_indel: 14,
+            alt_indel: 6,
+            ref_fwd: 7,
+            alt_fwd: 12,
+            ref_rev: 4,
+            alt_rev: 3,
+        };
+
+        let ground_truth = CountData {
+            chrom: "chr22".into(),
+            pos: 10513926,
+            ref_base: 'A',
+            alt_base: '.',
+            bef_base: 'A',
+            aft_base: 'A',
+            ref_count: 4,
+            alt_count: 9,
+            ref_indel: 17,
+            alt_indel: 11,
+            ref_fwd: 8,
+            alt_fwd: 19,
+            ref_rev: 10,
+            alt_rev: 21,
+        };
+
+        let cd_sum = cd1 + cd2;
+        assert_eq!(cd_sum, ground_truth);
+    }
 }
