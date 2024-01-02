@@ -15,24 +15,33 @@ fn rs_merge(count_paths: Vec<&str>, _out_path: &str) {
 
     while cfs.len() > 0 {
         //the first CountFile position will be the min
-        //NOTE this is a bug! the "top" cf needs to be added
-        //back to the heap!
-        let mut locus_data = cfs.pop().unwrap().data;
+        let mut min_cf = cfs.pop().unwrap();
+        let mut locus_data = min_cf.data;
+
+        //Add the min cf back to the heap if it's not exhausted
+        if min_cf.next() {
+            cfs.push(min_cf);
+        }
 
         //Aggregate the counts at the current position
-        //keep popping until a greater value is found
-        //then add that back onto the heap
         while cfs.len() > 0 {
-            let cf = cfs.pop().unwrap();
+            let mut cf = cfs.pop().unwrap();
             let data = cf.data;
 
-            if cf.next() {
-                cfs.push(cf);
-            }
-
+            //If the data is the same position as the min locus
+            //then add it to the locus_data, call next on the pointer,
+            //and then push back onto the heap
             if data == locus_data {
                 locus_data += data;
+
+                if cf.next() {
+                    cfs.push(cf);
+                }
+
+            //Otherwise, push the pointer back without advancing it
+            //and break out of the while loop
             } else {
+                cfs.push(cf);
                 break;
             }
         }

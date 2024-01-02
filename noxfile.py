@@ -2,21 +2,6 @@ import nox
 
 
 @nox.session()
-def test(session: nox.Session) -> None:
-    """Run tests with pytest."""
-    session.install("maturin", "pytest")
-    session.run("maturin", "develop")
-    session.run("pytest")
-
-
-@nox.session()
-def rs_unit_test(session: nox.Session) -> None:
-    """Run rust unit tests with cargo."""
-    session.install("cargo")
-    session.run("cargo", "test")
-
-
-@nox.session()
 def black(session):
     session.run("black", "python", external=True)
 
@@ -34,3 +19,16 @@ def lint(session):
         "darglint",
     )
     session.run("flake8")
+
+
+@nox.session()
+def py_test(session: nox.Session) -> None:
+    """Run tests with pytest."""
+    session.run("maturin", "develop", external=True)
+    session.run("pytest", external=True)
+
+
+@nox.session()
+def rs_unit_test(session: nox.Session) -> None:
+    """Run rust unit tests with cargo."""
+    session.run("cargo", "test", external=True)

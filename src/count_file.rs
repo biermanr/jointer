@@ -3,9 +3,9 @@ use std::io::BufRead;
 use std::path::Path;
 use std::{fs, io, ops};
 
-#[derive(Eq,PartialEq,Debug)]
+#[derive(Eq,PartialEq,Debug,Clone,Copy)]
 pub struct CountData {
-    chrom: String, //NOTE handle the chromosomes better! new struct?
+    chrom: u8, //NOTE handle the chromosomes better! new struct?
     pos: u32,
     ref_base: char,
     alt_base: char,
@@ -120,7 +120,7 @@ impl CountFile {
             .collect();
 
         CountData {
-            chrom: parts[0].into(),
+            chrom: parts[0].parse().unwrap(),
             pos: parts[1].parse().unwrap(),
             ref_base: parts[2].chars().next().unwrap(),
             alt_base: parts[3].chars().next().unwrap(),
@@ -172,11 +172,11 @@ mod tests {
 
     #[test]
     fn test_parse_line() {
-        let line = "chr22	10513926	A	.	A	A	1	0	0	0	1	0	0	0	.	.	.	.	.	.	.	.	.	.";
+        let line = "22	10513926	A	.	A	A	1	0	0	0	1	0	0	0	.	.	.	.	.	.	.	.	.	.";
         let cf = CountFile::parse_line(line);
 
         let ground_truth = CountData {
-            chrom: "chr22".into(),
+            chrom: 22,
             pos: 10513926,
             ref_base: 'A',
             alt_base: '.',
@@ -196,9 +196,9 @@ mod tests {
     }
 
     #[test]
-    fn test_add_CountData() {
+    fn test_add_count_data() {
         let cd1 = CountData {
-            chrom: "chr22".into(),
+            chrom: 22,
             pos: 10513926,
             ref_base: 'A',
             alt_base: '.',
@@ -215,7 +215,7 @@ mod tests {
         };
 
         let cd2 = CountData {
-            chrom: "chr22".into(),
+            chrom: 22,
             pos: 10513926,
             ref_base: 'A',
             alt_base: '.',
@@ -232,7 +232,7 @@ mod tests {
         };
 
         let ground_truth = CountData {
-            chrom: "chr22".into(),
+            chrom: 22,
             pos: 10513926,
             ref_base: 'A',
             alt_base: '.',
@@ -253,9 +253,9 @@ mod tests {
     }
 
     #[test]
-    fn test_iter_sum_CountData() {
+    fn test_iter_sum_count_data() {
         let cd1 = CountData {
-            chrom: "chr22".into(),
+            chrom: 22,
             pos: 10513926,
             ref_base: 'A',
             alt_base: '.',
@@ -272,7 +272,7 @@ mod tests {
         };
 
         let cd2 = CountData {
-            chrom: "chr22".into(),
+            chrom: 22,
             pos: 10513926,
             ref_base: 'A',
             alt_base: '.',
@@ -289,7 +289,7 @@ mod tests {
         };
 
         let ground_truth = CountData {
-            chrom: "chr22".into(),
+            chrom: 22,
             pos: 10513926,
             ref_base: 'A',
             alt_base: '.',
