@@ -22,16 +22,8 @@ class CountFile:
         self.pos = None
         self.ref = None
         self.alt = None
-        self.bef = None
-        self.aft = None
         self.ref_count = None
         self.alt_count = None
-        self.ref_indel = None
-        self.alt_indel = None
-        self.ref_fwd = None
-        self.ref_rev = None
-        self.alt_fwd = None
-        self.alt_rev = None
 
         self.exhausted = False
 
@@ -62,16 +54,8 @@ class CountFile:
         self.pos = split_line[1]
         self.ref = split_line[2]
         self.alt = split_line[3]
-        self.bef = split_line[4]
-        self.aft = split_line[5]
-        self.ref_count = CountFile.to_numeric(split_line[6])
-        self.alt_count = CountFile.to_numeric(split_line[7])
-        self.ref_indel = CountFile.to_numeric(split_line[8])
-        self.alt_indel = CountFile.to_numeric(split_line[9])
-        self.ref_fwd = CountFile.to_numeric(split_line[10])
-        self.ref_rev = CountFile.to_numeric(split_line[11])
-        self.alt_fwd = CountFile.to_numeric(split_line[12])
-        self.alt_rev = CountFile.to_numeric(split_line[13])
+        self.ref_count = CountFile.to_numeric(split_line[4])
+        self.alt_count = CountFile.to_numeric(split_line[5])
 
         return True
 
@@ -86,8 +70,6 @@ class CountFile:
             self.pos,
             self.ref,
             self.alt,
-            self.bef,
-            self.aft,
         ]
 
     def count_fields(self) -> List[int]:
@@ -99,12 +81,6 @@ class CountFile:
         return [
             self.ref_count,
             self.alt_count,
-            self.ref_indel,
-            self.alt_indel,
-            self.ref_fwd,
-            self.ref_rev,
-            self.alt_fwd,
-            self.alt_rev,
         ]
 
     def __eq__(self, other: object) -> bool:
@@ -149,7 +125,7 @@ class CountFile:
         """
         return (
             f"{self.chrom}:{self.pos} "
-            f"{self.bef}[{self.ref}>{self.alt}]{self.aft} "
+            f"{self.ref}>{self.alt} "
             f"REF_COUNT={self.ref_count} ALT_COUNT={self.alt_count} "
             f"{self.path}"
         )
@@ -198,16 +174,8 @@ def merge(count_paths: List[str], out_path: str) -> None:
             "POS",
             "REF",
             "ALT",
-            "BEFORE",
-            "AFTER",
             "REF_COUNT",
             "ALT_COUNT",
-            "REF_INDEL",
-            "ALT_INDEL",
-            "REF_FWD",
-            "REF_REV",
-            "ALT_FWD",
-            "ALT_REV",
         ]
         out_f.write("\t".join(header_fields) + "\n")
 

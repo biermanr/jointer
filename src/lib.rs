@@ -5,16 +5,24 @@ use crate::count_file::CountFile;
 
 use std::collections::BinaryHeap;
 
+use std::io::{BufWriter, Write};
+use std::fs::File;
+
 /// Merge counts files
 #[pyfunction]
-fn rs_merge(count_paths: Vec<&str>, _out_path: &str) {
+fn rs_merge(count_paths: Vec<&str>, out_path: &str) {
+
+    //Open the output file for writing
+    let out_file = File::create(out_path).unwrap();
+    let mut out_file = BufWriter::new(out_file);
+
     let mut cfs: BinaryHeap<CountFile> = count_paths
         .iter()
         .map(|x| CountFile::new(x))
         .collect();
 
-    while cfs.len() > 0 {
-        //the first CountFile position will be the min
+    while !cfs.is_empty() {
+        //Pop off the minimum position
         let mut min_cf = cfs.pop().unwrap();
         let mut locus_data = min_cf.data;
 
@@ -24,7 +32,7 @@ fn rs_merge(count_paths: Vec<&str>, _out_path: &str) {
         }
 
         //Aggregate the counts at the current position
-        while cfs.len() > 0 {
+        while !cfs.is_empty() {
             let mut cf = cfs.pop().unwrap();
             let data = cf.data;
 
@@ -46,10 +54,13 @@ fn rs_merge(count_paths: Vec<&str>, _out_path: &str) {
             }
         }
 
-        //TODO writeout aggregated values
-
+        //writeout the data at this locus
+        writeln!(out_file, "{}", locus_data).unwrap();
 
     }
+
+    //Flush the output file
+    out_file.flush().unwrap();
 
 }
 

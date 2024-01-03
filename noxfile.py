@@ -7,7 +7,7 @@ def black(session):
 
 
 @nox.session()
-def lint(session):
+def py_lint(session):
     """Lint code with flake8."""
     session.install(
         "flake8",
@@ -19,6 +19,12 @@ def lint(session):
         "darglint",
     )
     session.run("flake8")
+
+
+@nox.session()
+def rs_lint(session):
+    """Lint rust code with clippy."""
+    session.run("cargo", "test", external=True)
 
 
 @nox.session()

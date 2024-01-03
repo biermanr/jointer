@@ -1,4 +1,5 @@
 *.counts
+*_counts.txt
 
 /target
 
