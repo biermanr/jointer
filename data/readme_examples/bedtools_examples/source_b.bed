@@ -1,0 +1,4 @@
+#chrom	start	end	count
+chr1	80	110	2
+chr2	370	600	4
+chrX	1420	1490	9
