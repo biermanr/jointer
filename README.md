@@ -43,6 +43,12 @@ join -j1 \
     | awk 'BEGIN{OFS="\t"} {print $2,$3,$4+$5}'
 ```
 
+More simply, we can use idiomatic `awk` two-file processing to do the same thing:
+```bash
+awk 'NR==FNR {a[$1$2]=$3; next} $1$2 in a {print $1,$2,$3+a[$1$2]}' \
+    application_A.tsv application_B.tsv
+```
+
 Or we can use `counts_merge`:
 ```bash
 counts_merge \
