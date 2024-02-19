@@ -1,4 +1,5 @@
 """Merge count files."""
+
 import heapq
 from typing import List
 

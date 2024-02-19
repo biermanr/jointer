@@ -3,7 +3,7 @@ requires = ["maturin>=1.2,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "counts_merging"
+name = "jointer"
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Rust",
@@ -18,7 +18,7 @@ dependencies = [
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-source = "python"
-module-name = "counts_merging.rust_utils"
+module-name = "jointer.rust_utils"
 
 [project.scripts]
-merge-counts = "counts_merging.cli:merge_counts"
+jointer = "jointer.cli:jointer"
