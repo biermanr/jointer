@@ -25,7 +25,7 @@ Example file `country_codes.tsv`:
 | BRA          |  Brazil       |
 | CHN          |  China        |
 | IND          |  India        |
-| USA          |  United States|
+| USA          |  United-States|
 
 Your goal is to merge these two files to get a table with three columns:
 (1) the country code, (2) the country name, and (3) the population. You
@@ -42,7 +42,7 @@ This would give you the following merged table:
 | BRA          |  Brazil       |  209        |
 | CHN          |  China        |  1439       |
 | IND          |  India        |  1380       |
-| USA          |  United States|  328        |
+| USA          |  United-States|  328        |
 
 You could also use `jointer` to achieve the same result:
 
@@ -60,7 +60,7 @@ the `country_codes_col_reorder.tsv` file
 | Brazil       |  BRA          |
 | China        |  CHN          |
 | India        |  IND          |
-| United States|  USA          |
+| United-States|  USA          |
 
 In which case you would use the following command to perform the join:
 ```bash
@@ -82,6 +82,7 @@ jointer -j 2 country_populations_col_reorder.tsv country_codes_col_reorder.tsv
 ```
 
 !TODO add in examples from join man page TODO!
+!TODO add in doctest TODO!
 
 ### Multi-column merging and aggregating of two sorted tables
 Let's say we have kept track of the hours logged by users using two different applications
