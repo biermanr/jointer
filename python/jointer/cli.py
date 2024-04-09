@@ -1,0 +1,30 @@
+import click
+from . import __version__
+
+from . import jointer
+from . import rust_utils
+
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+
+
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.version_option(version=__version__)
+@click.argument("input_file1", type=click.Path(exists=True))
+@click.argument("input_file2", type=click.Path(exists=True))
+@click.argument("out_path", type=click.Path(exists=False))
+def jointerPY(input_file1, input_file2, out_path):
+    """
+    Jointer: A tool to flexibly merge sorted tabular files.
+    Python implementation.
+    """
+    jointer.join(input_file1, input_file2, out_path)
+
+
+@click.group(context_settings=CONTEXT_SETTINGS)
+@click.version_option(version=__version__)
+def jointerRS():
+    """
+    Jointer: A tool to flexibly merge sorted tabular files.
+    Rust implementation.
+    """
+    pass
