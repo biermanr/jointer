@@ -1,7 +1,7 @@
 from jointer import jointer
 
 
-def test_code_pop(tmp_path):
+def test_code_pop(tmp_path, capsys):
     codes_path = tmp_path / "country_codes.tsv"
     codes_path.write_text(
         "country_code	country_name\n"
@@ -20,7 +20,6 @@ def test_code_pop(tmp_path):
         + "USA	328\n"
     )
 
-    joint_path = tmp_path / "joined.tsv"
     joint_text = (
         "country_code	country_name	population\n"
         + "BRA	Brazil	209\n"
@@ -29,5 +28,7 @@ def test_code_pop(tmp_path):
         + "USA	United-States	328\n"
     )
 
-    jointer.join(codes_path, pops_path, joint_path)
-    assert joint_path.read_text() == joint_text
+    jointer.join(codes_path, pops_path)
+    captured = capsys.readouterr()
+
+    assert captured.out == joint_text

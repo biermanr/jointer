@@ -1,7 +1,8 @@
 from pathlib import Path
+import sys
 
 
-def join(file_path1: Path, file_path2: Path, out_path: Path):
+def join(file_path1: Path, file_path2: Path):
     """
     Join two tabular files into one based on the first column.
     The files must be sorted by the first column.
@@ -15,9 +16,7 @@ def join(file_path1: Path, file_path2: Path, out_path: Path):
     :param out_path: path to the output file
     :type out_path: Path
     """
-    with open(file_path1, "r") as f1, open(file_path2, "r") as f2, open(
-        out_path, "w"
-    ) as out:
+    with open(file_path1, "r") as f1, open(file_path2, "r") as f2:
         line1 = f1.readline()
         line2 = f2.readline()
 
@@ -30,6 +29,6 @@ def join(file_path1: Path, file_path2: Path, out_path: Path):
             elif key1 > key2:
                 line2 = f2.readline()
             else:
-                out.write("\t".join([key1] + rest1 + rest2) + "\n")
+                sys.stdout.write("\t".join([key1] + rest1 + rest2) + "\n")
                 line1 = f1.readline()
                 line2 = f2.readline()
