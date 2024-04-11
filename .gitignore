@@ -2,6 +2,8 @@
 *_counts.txt
 
 /target
+*.tsv
+*.swp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
