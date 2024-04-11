@@ -1,4 +1,9 @@
+*.counts
+*_counts.txt
+
 /target
+*.tsv
+*.swp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -72,4 +77,4 @@ docs/_build/
 .python-version
 
 # Temporary
-.swp
+*.swp
